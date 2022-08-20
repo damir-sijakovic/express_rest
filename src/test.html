@@ -1,0 +1,611 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Rest testing app.</title>
+  <meta name="description" content="Rest tester.">
+  <meta name="author" content="Damir Sijakovic">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  
+</head>
+<body>
+
+<div class="w3-card-4">
+
+<header class="w3-container w3-blue">
+  <h1> REST test </h1>
+</header>
+
+
+
+
+<div class="w3-container">
+  <h2>Routes</h2>
+  <p>You can test REST API here. Please note that I'm not validating (fully) inputs here. <br> So, please enter only valid email string and password with 4-8 chars.</p>
+  <p>Database is empty at start, so you will need to register user first.<br>
+	After that use "login" to get the JWT token. When you get the token,<br>
+	other fetch functions will use JWT from input. To logout - just delete JWT, </p> 
+  <p>Server should be at: http://localhost:5000/</p>
+  
+    <p>JWT Token</p>  
+	<div class="w3-bar-item">
+	<button class="w3-button w3-red" onClick="clearJwtInput()">Delete</button>
+	<span> <input class="input-token" style="width:70%" placeholder="Paste JWT token here..."  /> </span>
+	</div>
+
+    <hr />
+    	
+    <p>Login:</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onclick="login()">POST</button>
+        <span class="w3-tag w3-orange"> /users/login </span>
+        <span> Email: </span>
+        <span> <input class="input-login-email" /> </span>
+        <span> Password: </span>
+        <span> <input class="input-login-password" /> </span>
+      </div>
+    </div>
+	
+	<hr />
+	
+    <p>Register:</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onclick="register()">POST</button>
+        <span class="w3-tag w3-orange"> /users/register </span>
+        <span> Email: </span>
+        <span> <input class="input-register-email" /> </span>
+        <span> Password: </span>
+        <span> <input class="input-register-password" /> </span>
+      </div>
+    </div>
+	
+	<hr />
+	
+    <p>List users (no jwt check):</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onClick="listUsers()">GET</button>
+        <span class="w3-tag w3-orange"> /users/ </span>
+      </div>
+    </div>
+	
+	<hr />
+	
+    <p>List posts:</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onClick="listPosts()">GET</button>
+        <span class="w3-tag w3-orange"> /posts/ </span>
+      </div>
+    </div>
+	
+	<hr />
+	
+    <p>Get post by id:</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onclick="getPostById()">GET</button>
+        <span class="w3-tag w3-orange"> /posts/id/# </span>
+        <span> id: </span>
+        <span> <input class="input-post-id" placeholder="Paste id code here..." /> </span>
+      </div>
+    </div>
+	
+	<hr />
+	
+    <p>Add post:</p>	
+	<div class="w3-bar">
+      <div class="w3-bar-item">
+        <button class="w3-button w3-blue" onclick="addPost()">POST</button>
+        <span class="w3-tag w3-orange"> /posts/add </span>  
+		<span> Title: </span>
+		<span> <input class="input-post-title" placeholder="Post title..." /> </span>
+      </div>
+		  
+       <textarea class="w3-input w3-border input-post-body" style="resize:none" placeholder="Paste post text here..."></textarea> 
+    </div>
+    
+	
+	<hr />
+		
+	
+
+</div>
+
+<br />
+
+<footer class="w3-container w3-blue">
+  <h5>Made with <a href="https://www.w3schools.com/w3css/"> w3.css </a></h5>
+</footer>
+</div>
+
+<!--
+<button class="w3-button w3-blue" onclick="test()">TEST </button>
+-->
+
+<!-- MODAL -->
+
+  <div class="w3-modal modal-main">
+    <div class="w3-modal-content">
+      <header class="w3-container w3-blue"> 
+        <span onclick="hideModal()" 
+        class="w3-button w3-red w3-display-topright">&times;</span>
+        <h2>Output</h2>
+      </header>
+      <div class="w3-container modal-data">
+     
+      </div>
+    </div>
+
+
+
+
+
+</body>
+</html>
+
+<script>
+
+const hideModal = () => {	
+	const modalElement = document.querySelector('.modal-main');
+	modalElement.style.display = "none";
+}
+
+const clearJwtInput = () => {
+	document.querySelector('.input-token').value = '';
+}
+
+const login = async () => {
+	const emailData = document.querySelector('.input-login-email').value; 
+	const passwordData = document.querySelector('.input-login-password').value; 
+	
+	let inputError = false;
+	if (emailData.length > 0){}else{
+		inputError = true;
+	}
+	
+	if (passwordData.length > 0){}else{
+		inputError = true;
+	}
+	
+	
+	if (inputError){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Login Error</h3>
+			<p>Input error! Please add correct values.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;			
+	}
+	
+	const bodyData = {
+		email: emailData,         // "alpha@gmail.com",
+		password: passwordData,  //"12345678",
+	};
+	
+	const payloadData = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(bodyData),	  
+	};	
+	
+	const response = await fetch('http://localhost:5000/users/login', payloadData);
+	const jsonData = await response.json();
+	
+	if (jsonData.hasOwnProperty('error')){
+		const errorString = jsonData.error;
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>${errorString}</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;
+	}
+
+	
+	if (jsonData.hasOwnProperty('success')){
+		const successString = jsonData.success;
+		const token = jsonData.token;
+		
+		document.querySelector('.input-token').value = token;		
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Success</h3>
+			<p>${successString}</p>
+			
+			<p>Token:</p>
+			<p style="overflow: scroll;">${token}</p>
+			
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		
+		return true;
+	}
+		
+}
+
+
+const register = async () => {
+	const emailData = document.querySelector('.input-register-email').value; 
+	const passwordData = document.querySelector('.input-register-password').value; 
+	
+	let inputError = false;
+	if (emailData.length > 0){}else{
+		inputError = true;
+	}
+	
+	if (passwordData.length > 0){}else{
+		inputError = true;
+	}
+	
+	
+	if (inputError){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Register Error</h3>
+			<p>Input error! Please add correct values.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;			
+	}
+	
+	const bodyData = {
+		email: emailData,         // "alpha@gmail.com",
+		password: passwordData,  //"12345678",
+	};
+	
+	const payloadData = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(bodyData),	  
+	};	
+	
+	const response = await fetch('http://localhost:5000/users/register', payloadData);
+	const jsonData = await response.json();
+	
+	if (jsonData.hasOwnProperty('error')){
+		const errorString = jsonData.error;
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>${errorString}</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;
+	}
+	
+	if (jsonData.hasOwnProperty('success')){
+		const successString = jsonData.success;
+			
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Success</h3>
+			<p>${successString}</p>
+						
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		
+		return true;
+	}
+}
+
+const listUsers = async () => {
+	const response = await fetch('http://localhost:5000/users');
+	const jsonData = await response.json();
+
+	if (jsonData.success){
+
+		const data = jsonData.success;
+		var innerHtml = `
+			<h3>Success</h3>
+			<p>User list: </p>
+			<table class="w3-table w3-striped w3-border">
+			<tr>
+			<th>Id</th>
+			<th>Email</th>		
+			</tr>
+		`;
+		
+		for (const [key, value] of Object.entries(data)) {
+			console.log(value.email);
+
+			innerHtml += `
+				<tr>
+					<td> ${ key }</td>
+					<td> ${ value.email }</td>				
+				</tr>
+			`;
+		}
+
+		innerHtml += `			
+			</table>
+			<br>		
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = innerHtml;
+
+		return true;
+	}
+	
+}
+
+const listPosts = async () => {
+
+	const token = document.querySelector('.input-token').value;
+	if (token.length < 16){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>No token found. Please register & login to get the token.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+	} 
+
+	const payloadData = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token , 
+		}
+	};	
+
+	const response = await fetch('http://localhost:5000/posts', payloadData);
+	const jsonData = await response.json();
+
+	if (jsonData.error){
+
+		const errorString = jsonData.error;
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>${ errorString }</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return false;
+	}
+
+	if (jsonData.success){
+
+		const data = jsonData.success;
+		var innerHtml = `
+			<h3>Success</h3>
+			<p>Post list: </p>
+			<table class="w3-table w3-striped w3-border">
+			<tr>
+			<th>Id</th>
+			<th>Author</th>
+			<th>Title</th>
+			<th>Post</th>		
+			</tr>
+		`;
+		
+		for (const [key, value] of Object.entries(data)) {
+			const postTitle = decodeURIComponent(value.title);
+			const author = decodeURIComponent(value.author);
+			const decodedPost = decodeURIComponent(value.post);
+			const postShort = decodedPost.slice(0, 20);
+			
+			innerHtml += `
+				<tr>
+					<td> ${ key }</td>
+					<td> ${ author }</td>
+					<td> ${ postTitle }</td>
+					<td> ${ postShort }...</td>				
+				</tr>
+			`;
+		}
+
+		innerHtml += `			
+			</table>
+			<br>		
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = innerHtml;
+
+		return true;
+	}
+	
+}
+
+const addPost = async ()  => {
+	
+	const postTitle = document.querySelector('.input-post-title').value;
+	const postBody = document.querySelector('.input-post-body').value;
+	
+	let inputError = false;
+	if (postTitle.length > 0){}else{
+		inputError = true;
+	}
+	
+	if (postBody.length > 0){}else{
+		inputError = true;
+	}
+	
+	
+	if (inputError){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Add post error</h3>
+			<p>Input error! Please add correct values.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;			
+	}
+
+	const token = document.querySelector('.input-token').value;
+	
+	if (token.length < 16){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>No token found. Please register & login to get the token.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return false;
+	} 
+
+	const bodyData = {
+		title: encodeURIComponent(postTitle),
+		body: encodeURIComponent(postBody),
+	}
+
+	const payloadData = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token , 
+		},
+		body: JSON.stringify(bodyData),	  
+	};	
+
+	const response = await fetch('http://localhost:5000/posts/create', payloadData);
+	const jsonData = await response.json();
+ 
+	if (jsonData.error){
+		const errorString = jsonData.error;
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>${ errorString }</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return false;
+	}
+
+	if (jsonData.success){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Success</h3>
+			<p>Data added.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return false;
+	}
+
+
+
+}
+
+
+
+const getPostById = async () => {
+	const postId = document.querySelector('.input-post-id').value;
+
+	if (postId.length > 0){}else{
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Get post by id error</h3>
+			<p>Input error! Please add correct values.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;			
+	}
+
+	const token = document.querySelector('.input-token').value;	
+	if (token.length < 16){
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>No token found. Please register & login to get the token.</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+		return false;
+	} 
+
+	const bodyData = {
+		id: postId,
+	}
+
+	const payloadData = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token , 
+		}
+	};	
+
+	const response = await fetch('http://localhost:5000/posts/id/' + postId, payloadData);
+	const jsonData = await response.json();
+
+	if (jsonData.error){
+		const errorString = jsonData.error;
+		document.querySelector('.modal-main').style.display = 'block';
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Error</h3>
+			<p>${ errorString }</p>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return false;
+	}
+
+	if (jsonData.success){
+		document.querySelector('.modal-main').style.display = 'block';
+
+		const author = jsonData.success.author;
+		const title = decodeURIComponent( jsonData.success.title );
+		const createdAt = jsonData.success.createdAt;
+		const post = decodeURIComponent( jsonData.success.post );
+
+
+		document.querySelector('.modal-data').innerHTML = `
+			<h3>Success</h3>
+
+			<ul class="w3-ul w3-border">
+				<li>${author}</li>			
+				<li>${createdAt}</li>
+				<li>${title}</li>
+				<li style="overflow: scroll;">${post}</li>
+			</ul>
+			<br><br>
+			<button class="w3-button w3-blue" onClick="hideModal()"> OK </button>
+			<br><br>
+		`;
+
+		return true;
+	}
+
+}
+
+
+
+
+
+
+</script>
