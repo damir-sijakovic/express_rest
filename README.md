@@ -15,10 +15,6 @@ You can register users and create posts while JWT tokens are used for authentica
 
 Start server and open "src/test.html". Register user and login after that you can create posts and list them out. 
 
-## Env file
-
-Important, before use rename "env" to ".env" before use.
-
 ## Developed and tested on Ubuntu!
 
 ### HAVE FUN!
